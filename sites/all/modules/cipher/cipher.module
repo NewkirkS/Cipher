@@ -48,7 +48,7 @@ function cipher_form() {
 
 function element_validate_direction($element) {
   if($element != 'right' || $element != 'left') {
-    form_error($element, t('Please enter "left" or "right" for the shift direction.'))
+    form_error($element, t('Please enter "left" or "right" for the shift direction.'));
   }
 }
 
