@@ -1,82 +1,106 @@
 <?php
 
 function cipher_menu() {
-  $items['cipher'] = array(
-     'title' => 'Shift Cipher',
-     'page callback' => 'drupal_get_form',
-     'page arguments' => array('cipher_form'),
-     'access callback' => TRUE,
-     'type' => MENU_NORMAL_ITEM,
-  );
-  $items['cipher_results'] = array(
-     'title' => 'Results',
-     'page callback' => 'cipher_results',
-     'access callback' => TRUE,
-     'type' => MENU_CALLBACK,
-  );
-  return $items;
+    $items['cipher'] = array(
+        'title' => 'Shift Cipher',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('cipher_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+    $items['cipher_results'] = array(
+        'title' => 'Results',
+        'page callback' => 'cipher_results',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
 }
 
 function cipher_form() {
-  $form['shift_value'] = array(
-    '#title' => 'Shift Value',
-    '#type' => 'textfield',
-    '#description' => t('Enter a positive number of spaces to shift the letters of the cipher.'),
-    '#element_validate' => array('element_validate_integer_positive'),
-    '#required' => TRUE,
-  );
-  $form['shift_direction'] = array(
-    '#title' => 'Shift Direction',
-    '#type' => 'textfield',
-    '#description' => t('Enter "left" or "right" to choose a shift direction.'),
-    '#element_validate' => array('element_validate_direction'),
-    '#required' => TRUE,
-  );
-  $form['shift_phrase'] = array(
-    '#title' => 'Shift Phrase',
-    '#type' => 'textfield',
-    '#description' => t('Enter the word or phrase to be shifted'),
-    '#element_validate' => array('element_validate_phrase'),
-    '#required' => TRUE,
-  );
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => 'Go',
-  );
-  return $form;
+    $form['shift_value'] = array(
+        '#title' => 'Shift Value',
+        '#type' => 'textfield',
+        '#description' => t('Enter a positive number of spaces to shift the letters of the cipher.'),
+        '#element_validate' => array('element_validate_integer_positive'),
+        '#required' => TRUE,
+    );
+    $form['shift_direction'] = array(
+        '#title' => 'Shift Direction',
+        '#type' => 'textfield',
+        '#description' => t('Enter "left" or "right" to choose a shift direction.'),
+        '#element_validate' => array('element_validate_direction'),
+        '#required' => TRUE,
+    );
+    $form['shift_phrase'] = array(
+        '#title' => 'Shift Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Enter the word or phrase to be shifted'),
+        '#element_validate' => array('element_validate_phrase'),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Go',
+    );
+    return $form;
 }
 
 function element_validate_direction($element) {
-  if($element['#value'] != 'right' && $element['#value'] != 'left') {
-    form_error($element, t('Please enter "left" or "right" for the shift direction.'));
-  }
+    if($element['#value'] != 'right' && $element['#value'] != 'left') {
+        form_error($element, t('Please enter "left" or "right" for the shift direction.'));
+    }
 }
 
 function element_validate_phrase($element) {
-  $validation_array = str_split($element['#value']);
-  foreach($validation_array as $character) {
-    if(!ctype_alpha($character) && !ctype_punct($character) && !ctype_space($character)) {
-      form_error($element, t('Please enter a word or phrase that contains only letter, spaces and/or punctuation.'));
+    $validation_array = str_split($element['#value']);
+    foreach($validation_array as $character) {
+        if(!ctype_alpha($character) && !ctype_punct($character) && !ctype_space($character)) {
+            form_error($element, t('Please enter a word or phrase that contains only letter, spaces and/or punctuation.'));
+        }
     }
-  }
 }
 
 function cipher_form_submit($form, &$form_state) {
-  $_SESSION['shift_value'] = $form_state['values']['shift_value'];
-  $_SESSION['shift_direction'] = $form_state['values']['shift_direction'];
-  $_SESSION['shift_phrase'] = $form_state['values']['shift_phrase'];
+    $_SESSION['shift_value'] = $form_state['values']['shift_value'];
+    $_SESSION['shift_direction'] = $form_state['values']['shift_direction'];
+    $_SESSION['shift_phrase'] = $form_state['values']['shift_phrase'];
 
-  $form_state['redirect'] = 'cipher_results';
+    $form_state['redirect'] = 'cipher_results';
 }
 
 function cipher_results() {
-  $shift_value = $_SESSION['shift_value'];
-  $direction = $_SESSION['shift_direction'];
-  $phrase = $_SESSION['shift_phrase'];
+    //Get raw values from session
+    $shift_value = $_SESSION['shift_value'];
+    $direction = $_SESSION['shift_direction'];
+    $phrase = strtolower($_SESSION['shift_phrase']);
+    //split phrase into array of characters
+    $phrase_characters = str_split($phrase);
+    //save original shift value for later printing to page in case value becomes negative
+    $printable_shift_value = $shift_value;
+    //make shift value negative if user chose left shift direction and winnow down larger shift values to workable size
+    if($shift_value > 26) {
+        $shift_value = $shift_value % 26;
+    }
+    if($direction === 'left') {
+        $shift_value = -$shift_value;
+    }
+    //Define alphabet array and flipped alphabet for checking and substituting characters
+    $alphabet = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
+    $flipped_alphabet = array_flip($alphabet);
+    $encrypted_phrase = '';
+    foreach($phrase_characters as $character) {
+        if(ctype_alpha($character)){
+            $character = $flipped_alphabet[$character];
+           if ($shift_value < 0) {
+               $character = (26 + ($character + $shift_value)) % 26;
+           } else {
+               $character = ($character + $shift_value) % 26;
+           }
 
-  if($direction === 'left') {
-    $shift_value = -$shift_value;
-  }
-
-  return '<p> The value is: ' . $shift_value . '. The direction is: ' . $direction . '. The phrase is: ' . $phrase . '.';
+            $character =  $alphabet[$character];
+        }
+        $encrypted_phrase .= $character;
+    }
+    return '<p> Your input, ' . $phrase . ', when shifted ' . $printable_shift_value . ' space(s) to the ' . $direction . ', becomes "' . $encrypted_phrase . '"!';
 }
