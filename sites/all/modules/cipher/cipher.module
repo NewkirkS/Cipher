@@ -45,3 +45,19 @@ function cipher_form() {
   );
   return $form;
 }
+
+function element_validate_direction($element) {
+
+}
+
+function element_validate_phrase($element) {
+
+}
+
+function cipher_form_submit($form, &$form_state) {
+
+}
+
+function cipher_results() {
+  
+}
