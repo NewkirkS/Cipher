@@ -70,9 +70,13 @@ function cipher_form_submit($form, &$form_state) {
 }
 
 function cipher_results() {
-  $value = $_SESSION['shift_value'];
+  $shift_value = $_SESSION['shift_value'];
   $direction = $_SESSION['shift_direction'];
   $phrase = $_SESSION['shift_phrase'];
 
-  return '<p> The value is: ' . $value . '. The direction is: ' . $direction . '. The phrase is: ' . $phrase . '.';
+  if($direction === 'left') {
+    $shift_value = -$shift_value;
+  }
+
+  return '<p> The value is: ' . $shift_value . '. The direction is: ' . $direction . '. The phrase is: ' . $phrase . '.';
 }
