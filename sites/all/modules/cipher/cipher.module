@@ -74,21 +74,30 @@ function cipher_results() {
     $shift_value = $_SESSION['shift_value'];
     $direction = $_SESSION['shift_direction'];
     $phrase = strtolower($_SESSION['shift_phrase']);
+
     //split phrase into array of characters
     $phrase_characters = str_split($phrase);
+
     //save original shift value for later printing to page in case value becomes negative
     $printable_shift_value = $shift_value;
+
     //make shift value negative if user chose left shift direction and winnow down larger shift values to workable size
     if($shift_value > 26) {
         $shift_value = $shift_value % 26;
     }
+
     if($direction === 'left') {
         $shift_value = -$shift_value;
     }
+
     //Define alphabet array and flipped alphabet for checking and substituting characters
     $alphabet = array('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
     $flipped_alphabet = array_flip($alphabet);
+
+    //Results variable
     $encrypted_phrase = '';
+
+    //convert letters into numbers, shift numbers appropriately and retranslate into characters
     foreach($phrase_characters as $character) {
         if(ctype_alpha($character)){
             $character = $flipped_alphabet[$character];
