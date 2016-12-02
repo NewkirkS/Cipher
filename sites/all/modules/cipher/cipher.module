@@ -15,4 +15,5 @@ function cipher_menu() {
      'access callback' => TRUE,
      'type' => MENU_NORMAL_ITEM,
   );
+  return $items;
 }
