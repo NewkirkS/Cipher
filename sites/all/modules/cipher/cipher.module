@@ -47,13 +47,24 @@ function cipher_form() {
 }
 
 function element_validate_direction($element) {
-  if($element != 'right' || $element != 'left') {
+  // echo '<pre>';
+  // var_dump($element['#value']);
+  // echo '</pre>';
+  // exit;
+  if($element['#value'] != 'right' && $element['#value'] != 'left') {
     form_error($element, t('Please enter "left" or "right" for the shift direction.'));
   }
 }
 
 function element_validate_phrase($element) {
 
+
+  $validation_array = str_split($element);
+  foreach($validation_array as $character) {
+    if(!ctype_alpha($character) && !ctype_punct($character) && !ctype_space($character)) {
+      form_error($element, t('Please enter a word or phrase that contains only letter, spaces and/or punctuation.'));
+    }
+  }
 }
 
 function cipher_form_submit($form, &$form_state) {
