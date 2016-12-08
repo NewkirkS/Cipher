@@ -57,6 +57,8 @@ function element_validate_phrase($element) {
     foreach($validation_array as $character) {
         if(!ctype_alpha($character) && !ctype_punct($character) && !ctype_space($character)) {
             form_error($element, t('Please enter a word or phrase that contains only letter, spaces and/or punctuation.'));
+        } elseif(preg_match("/([@#$%^&*~])/", $character) === 1) {
+            form_error($element, t('Please enter a word or phrase that contains only letter, spaces and/or punctuation.'));
         }
     }
 }
