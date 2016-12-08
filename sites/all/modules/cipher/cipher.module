@@ -108,7 +108,10 @@ function cipher_results() {
            }
 
             $character =  $alphabet[$character];
+        } elseif (ctype_space($character)) {
+            $character = "&nbsp";
         }
+
         $encrypted_phrase .= $character;
     }
     return '<p> Your input, ' . $phrase . ', when shifted ' . $printable_shift_value . ' space(s) to the ' . $direction . ', becomes "' . $encrypted_phrase . '"!';
